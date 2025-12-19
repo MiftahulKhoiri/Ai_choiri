@@ -1,15 +1,19 @@
 from utils.updater import git_update
 
-# 🔴 WAJIB di atas, sebelum import lain
+# 🔴 WAJIB: sebelum import ML
 git_update()
 
 from core.logic import SimpleAI
 from config.settings import AI_NAME, VERSION
 from data.memory import load_memory, save_memory
+from data.dataset import DATASET   # 🔥 DATASET DIPISAH
 
 def main():
+    # memory chat (history)
     memory = load_memory()
-    ai = SimpleAI(memory)
+
+    # AI pakai DATASET, bukan memory
+    ai = SimpleAI(DATASET)
 
     print("=" * 30)
     print(f"{AI_NAME} v{VERSION}")
@@ -24,7 +28,11 @@ def main():
         respon = ai.respond(user)
         print("AI :", respon)
 
-        memory.append({"user": user, "ai": respon})
+        # simpan history chat
+        memory.append({
+            "user": user,
+            "ai": respon
+        })
         save_memory(memory)
 
         if user.lower() == "bye":
