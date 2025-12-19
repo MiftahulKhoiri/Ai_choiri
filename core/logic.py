@@ -2,25 +2,31 @@ from utils.text import normalize
 from config.settings import THRESHOLD_RESPON
 
 class SimpleAI:
-    def __init__(self):
-        self.score = 0
+    def __init__(self, memory):
+        self.memory = memory
+        self.keyword_score = self._belajar_dari_memori()
+
+    def _belajar_dari_memori(self):
+        skor = {}
+        for item in self.memory:
+            pesan = item.get("user", "")
+            for kata in pesan.split():
+                skor[kata] = skor.get(kata, 0) + 1
+        return skor
 
     def respond(self, pesan: str) -> str:
         pesan = normalize(pesan)
-        self.score = 0
+        score = 0
 
-        if "halo" in pesan:
-            self.score += 10
-        if "ai" in pesan:
-            self.score += 20
-        if "python" in pesan:
-            self.score += 30
+        for kata in pesan.split():
+            score += self.keyword_score.get(kata, 0)
+
         if "bye" in pesan:
-            self.score -= 100
-
-        if self.score >= THRESHOLD_RESPON:
-            return "Aku mengerti."
-        elif self.score < 0:
             return "Sampai jumpa."
+
+        if score >= THRESHOLD_RESPON:
+            return "Aku mulai memahami pola bicaramu."
+        elif score > 0:
+            return "Aku menangkap sedikit maksudmu."
         else:
-            return "Jelaskan lagi."
+            return "Aku belum paham, jelaskan lagi."
