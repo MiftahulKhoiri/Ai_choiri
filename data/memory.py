@@ -1,27 +1,23 @@
 import json
 import os
 
-FILE_PATH = "memory.json"
+FILE = "memory.json"
 
 def load_memory():
-    if not os.path.exists(FILE_PATH):
+    if not os.path.exists(FILE):
         return []
     try:
-        with open(FILE_PATH, "r") as f:
+        with open(FILE, "r") as f:
             return json.load(f)
     except Exception:
         return []
 
 def save_memory(memory):
     try:
-        with open(FILE_PATH, "w") as f:
+        with open(FILE, "w") as f:
             json.dump(memory, f, indent=2)
     except Exception:
         pass
 
 def clear_memory():
-    try:
-        with open(FILE_PATH, "w") as f:
-            f.write("[]")
-    except Exception:
-        pass
+    save_memory([])
