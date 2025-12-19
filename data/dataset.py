@@ -25,5 +25,5 @@ DATASET = {
         "nama saya bagus",
         "aku bernama bagus"
     ],
-    "python": ["apa itu python"]
+    "python": ["apa itu python"],
 }
