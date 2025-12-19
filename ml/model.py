@@ -12,7 +12,7 @@ MODEL_PATH = "data/intent_model.pkl"
 LEARN_PATH = "data/learned_data.json"
 
 # =========================
-# TEXT CLEANER (Tokenizer ID ringan)
+# TEXT CLEANER (Indonesia ringan)
 # =========================
 STOPWORDS = {
     "yang", "dan", "di", "ke", "dari", "ini", "itu",
@@ -22,7 +22,7 @@ STOPWORDS = {
 
 def clean_text(text: str) -> str:
     text = text.lower()
-    text = re.sub(r"[^a-zA-Z\s]", "", text)
+    text = re.sub(r"[^a-z\s]", "", text)
     words = text.split()
     words = [w for w in words if w not in STOPWORDS]
     return " ".join(words)
@@ -31,27 +31,30 @@ def clean_text(text: str) -> str:
 # INTENT MODEL
 # =========================
 class IntentModel:
-    def __init__(self, dataset=None):
-        self.vectorizer = CountVectorizer()
+    def __init__(self, dataset: dict):
+        self.dataset = dataset
+
+        # 🔥 CHAR N-GRAM (anti typo)
+        self.vectorizer = CountVectorizer(
+            analyzer="char",
+            ngram_range=(2, 4)
+        )
         self.model = MultinomialNB()
-        self.dataset = dataset or {}
 
         if os.path.exists(MODEL_PATH):
             self.load()
-        elif dataset:
-            self.train(dataset)
-            self.save()
         else:
-            raise ValueError("Dataset tidak ada dan model belum tersedia")
+            self.train()
+            self.save()
 
     # =====================
     # TRAINING
     # =====================
-    def train(self, dataset: dict):
+    def train(self):
         X, y = [], []
 
         # dataset utama
-        for intent, texts in dataset.items():
+        for intent, texts in self.dataset.items():
             for text in texts:
                 X.append(clean_text(text))
                 y.append(intent)
@@ -75,33 +78,41 @@ class IntentModel:
     # =====================
     # PREDICT + CONFIDENCE
     # =====================
-    def predict(self, text: str, threshold: float = 0.5) -> str:
+    def predict(self, text: str, threshold: float = 0.35) -> str:
         cleaned = clean_text(text)
 
-        if not cleaned.strip():
+        if not cleaned:
             return "unknown"
 
         vec = self.vectorizer.transform([cleaned])
         probs = self.model.predict_proba(vec)[0]
 
-        max_prob = probs.max()
         intent = self.model.classes_[probs.argmax()]
+        confidence = probs.max()
 
-        if max_prob < threshold:
+        if confidence < threshold:
             return "unknown"
 
         return intent
 
     # =====================
-    # SAVE / LOAD MODEL
+    # SAVE / LOAD
     # =====================
     def save(self):
         os.makedirs("data", exist_ok=True)
-        joblib.dump((self.vectorizer, self.model), MODEL_PATH)
+        joblib.dump(
+            {
+                "vectorizer": self.vectorizer,
+                "model": self.model
+            },
+            MODEL_PATH
+        )
         print("[INFO] Model intent disimpan.")
 
     def load(self):
-        self.vectorizer, self.model = joblib.load(MODEL_PATH)
+        data = joblib.load(MODEL_PATH)
+        self.vectorizer = data["vectorizer"]
+        self.model = data["model"]
         print("[INFO] Model intent dimuat.")
 
     # =====================
@@ -116,11 +127,12 @@ class IntentModel:
         else:
             data = {}
 
-        data.setdefault(intent, []).append(text)
+        data.setdefault(intent, [])
+        if text not in data[intent]:
+            data[intent].append(text)
 
         with open(LEARN_PATH, "w") as f:
             json.dump(data, f, indent=2)
 
-        # retrain + save
-        self.train(self.dataset)
+        self.train()
         self.save()
