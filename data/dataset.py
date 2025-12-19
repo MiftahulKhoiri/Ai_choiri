@@ -17,7 +17,7 @@ DATASET = {
     "tanya_waktu": [
         "jam berapa",
         "besok jam berapa"
-    ]
+    ],
     "greeting": ["halo", "hai"],
     "bye": ["bye", "dadah"],
     "perkenalan": [
