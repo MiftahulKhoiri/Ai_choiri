@@ -1,7 +1,12 @@
+from utils.updater import git_update
 from core.logic import SimpleAI
 from config.settings import AI_NAME, VERSION
 
 def main():
+    # update repo dulu
+    git_update()
+
+    # jalankan AI
     ai = SimpleAI()
 
     print("=" * 30)
@@ -10,9 +15,8 @@ def main():
     print("=" * 30)
 
     while True:
-        user_input = input("Kamu: ")
-
-        if not user_input.strip():
+        user_input = input("Kamu: ").strip()
+        if not user_input:
             continue
 
         respon = ai.respond(user_input)
