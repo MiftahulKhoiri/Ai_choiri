@@ -18,3 +18,10 @@ def save_memory(memory):
             json.dump(memory, f, indent=2)
     except Exception:
         pass
+
+def clear_memory():
+    try:
+        with open(FILE_PATH, "w") as f:
+            f.write("[]")
+    except Exception:
+        pass
