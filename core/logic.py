@@ -1,27 +1,21 @@
-from utils.text import normalize
-import random
+from ml.dataset import dataset
+from ml.model import IntentModel
 
 class SimpleAI:
-    def __init__(self):
-        self.intent = {
-            "salam": ["halo", "hai"],
-            "pamit": ["bye", "keluar"],
-            "belajar": ["python", "belajar", "coding"]
-        }
+    def __init__(self, memory):
+        self.memory = memory
+        self.intent_model = IntentModel(dataset)
 
-        self.responses = {
-            "salam": ["Halo.", "Hai, ada yang bisa dibantu?"],
-            "pamit": ["Sampai jumpa."],
-            "belajar": ["Mau belajar apa?", "Topik apa yang kamu pilih?"],
-            "default": ["Saya belum paham."]
-        }
+    def respond(self, text):
+        intent = self.intent_model.predict(text)
 
-    def respond(self, pesan: str) -> str:
-        pesan = normalize(pesan)
+        if intent == "greeting":
+            return "Halo juga 👋"
 
-        for intent, kata_kunci in self.intent.items():
-            for kata in kata_kunci:
-                if kata in pesan:
-                    return random.choice(self.responses[intent])
+        if intent == "goodbye":
+            return "Sampai jumpa 👋"
 
-        return random.choice(self.responses["default"])
+        if intent == "python":
+            return "Python itu bahasa yang keren 🐍"
+
+        return "Aku masih belajar 🤖"
