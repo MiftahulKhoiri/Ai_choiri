@@ -1,5 +1,6 @@
 from ml.model import IntentModel
 from core.context import ContextMemory
+from utils.entity_extractor import extract_entities
 
 RESPONSES = {
     "greeting": "Halo juga 👋",
@@ -15,12 +16,18 @@ class SimpleAI:
         self.context = ContextMemory()
 
     def respond(self, user_input: str) -> str:
-        # simpan ke context
-        self.context.add(user_input)
+    self.context.add(user_input)
+    context_text = self.context.get()
 
-        # gabungkan context
-        context_text = self.context.get()
+    intent = self.intent_model.predict(context_text)
+    entities = extract_entities(context_text)
 
-        intent = self.intent_model.predict(context_text)
+    # === CONTOH LOGIC BERBASIS ENTITY ===
 
-        return RESPONSES.get(intent, RESPONSES["unknown"])
+    if intent == "greeting" and "nama" in entities:
+        return f"Halo {entities['nama']} 👋"
+
+    if intent == "tanya_waktu" and "waktu" in entities:
+        return f"Kamu menyebut waktu: {', '.join(entities['waktu'])}"
+
+    return RESPONSES.get(intent, RESPONSES["unknown"])
