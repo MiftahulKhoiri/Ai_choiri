@@ -1,4 +1,4 @@
-from utils.updater import git_update , install_requirements
+from utils.updater import git_update 
 from core.logic import SimpleAI
 from data.memory import load_memory, save_memory, clear_memory
 from config.settings import AI_NAME, VERSION
@@ -6,7 +6,6 @@ from config.settings import AI_NAME, VERSION
 def main():
     # 🔹 Update repo (AMAN kalau gagal)
     git_update()
-    install_requirements()
 
     ai = SimpleAI()
     memory = load_memory()
