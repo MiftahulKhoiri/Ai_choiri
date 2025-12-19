@@ -18,4 +18,12 @@ DATASET = {
         "jam berapa",
         "besok jam berapa"
     ]
+    "greeting": ["halo", "hai"],
+    "bye": ["bye", "dadah"],
+    "perkenalan": [
+        "namaku bagus",
+        "nama saya bagus",
+        "aku bernama bagus"
+    ],
+    "python": ["apa itu python"]
 }
