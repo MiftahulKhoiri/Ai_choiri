@@ -1,21 +1,26 @@
-from ml.dataset import dataset
 from ml.model import IntentModel
+from core.context import ContextMemory
+
+RESPONSES = {
+    "greeting": "Halo juga 👋",
+    "bye": "Sampai jumpa 👋",
+    "python": "Python itu bahasa yang keren 🐍",
+    "creator_python": "Python dibuat oleh Guido van Rossum 👨‍💻",
+    "unknown": "Aku masih belajar 🤖"
+}
 
 class SimpleAI:
-    def __init__(self, memory):
-        self.memory = memory
+    def __init__(self, dataset):
         self.intent_model = IntentModel(dataset)
+        self.context = ContextMemory()
 
-    def respond(self, text):
-        intent = self.intent_model.predict(text)
+    def respond(self, user_input: str) -> str:
+        # simpan ke context
+        self.context.add(user_input)
 
-        if intent == "greeting":
-            return "Halo juga 👋"
+        # gabungkan context
+        context_text = self.context.get()
 
-        if intent == "goodbye":
-            return "Sampai jumpa 👋"
+        intent = self.intent_model.predict(context_text)
 
-        if intent == "python":
-            return "Python itu bahasa yang keren 🐍"
-
-        return "Aku masih belajar 🤖"
+        return RESPONSES.get(intent, RESPONSES["unknown"])
