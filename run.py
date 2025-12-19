@@ -26,6 +26,11 @@ def main():
         save_memory(memory)
 
         if respon.lower().startswith("sampai"):
+        
+        if user.lower() == "reset":
+    clear_memory()
+    print("AI : Memori direset.")
+    continue
             break
 
 if __name__ == "__main__":
