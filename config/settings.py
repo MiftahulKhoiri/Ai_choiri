@@ -7,3 +7,5 @@ THRESHOLD_RESPON = 30
 
 # Mode
 DEBUG = True
+
+ADMIN_MODE = True
