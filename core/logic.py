@@ -5,6 +5,7 @@ from data.profile import load_profile, save_profile
 from data.chatlog import log_chat
 from data.learned import load_learned, save_learned, add_suggestion
 from ml.auto_tag import suggest_intent
+from config.settings import ADMIN_MODE
 
 
 RESPONSES = {
