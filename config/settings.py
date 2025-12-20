@@ -1,6 +1,6 @@
 # Identitas AI
 AI_NAME = "AI Choiri"
-VERSION = "0.1"
+VERSION = "0.5"
 
 # Ambang keputusan
 THRESHOLD_RESPON = 30
