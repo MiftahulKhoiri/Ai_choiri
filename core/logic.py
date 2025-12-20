@@ -2,6 +2,8 @@ from ml.model import IntentModel
 from core.context import ContextMemory
 from utils.entity_extractor import extract_entities
 from data.profile import load_profile, save_profile
+from data.chatlog import log_chat
+from data.learned import load_learned, save_learned
 
 
 RESPONSES = {
@@ -24,24 +26,39 @@ class SimpleAI:
         self.context.add(user_input)
         context_text = self.context.get()
 
-        # 2️⃣ prediksi intent & entity
-        intent = self.intent_model.predict(context_text)
+        # 2️⃣ prediksi intent + confidence
+        intent, score = self.intent_model.predict(context_text)
         entities = extract_entities(context_text)
 
-        # 3️⃣ update profil (memory panjang)
+        # 3️⃣ update profil
         self._update_profile(entities)
 
-        # 4️⃣ generate respon
+        # 4️⃣ simpan log chat
+        log_chat(user_input, intent)
+
+        # 5️⃣ BELAJAR JIKA TIDAK YAKIN
+        if intent == "unknown":
+            self._learn_from_chat(user_input)
+            self.context.clear()
+            return "Aku belum paham 🤔 Aku simpan ini untuk dipelajari."
+
+        # 6️⃣ respon normal
         return self._generate_response(intent)
 
     # ===============================
-    # 🔽 BAGIAN INTERNAL (BERSIH)
+    # 🔽 BAGIAN INTERNAL
     # ===============================
 
     def _update_profile(self, entities: dict):
         if "nama" in entities:
             self.profile["nama"] = entities["nama"]
             save_profile(self.profile)
+
+    def _learn_from_chat(self, text: str):
+        learned = load_learned()
+        learned.setdefault("unknown", [])
+        learned["unknown"].append(text)
+        save_learned(learned)
 
     def _generate_response(self, intent: str) -> str:
         name = self.profile.get("nama")
