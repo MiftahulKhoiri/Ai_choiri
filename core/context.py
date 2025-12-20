@@ -1,13 +1,11 @@
-from collections import deque
-
 class ContextMemory:
     def __init__(self):
         self.memory = []
 
-    def add(self, text):
+    def add(self, text: str):
         self.memory.append(text)
 
-    def get(self):
+    def get(self) -> str:
         return " ".join(self.memory)
 
     def clear(self):
