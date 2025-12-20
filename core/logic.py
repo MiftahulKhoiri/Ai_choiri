@@ -24,31 +24,25 @@ class SimpleAI:
         self.profile = load_profile()
 
     def respond(self, user_input: str) -> str:
-        # 1️⃣ simpan konteks
         self.context.add(user_input)
         context_text = self.context.get()
 
-        # 2️⃣ prediksi intent + confidence
         intent, score = self.intent_model.predict(context_text)
         entities = extract_entities(context_text)
 
-        # 3️⃣ update profil
         self._update_profile(entities)
-
-        # 4️⃣ simpan log chat
         log_chat(user_input, intent)
 
-        # 5️⃣ BELAJAR JIKA TIDAK YAKIN
         if intent == "unknown":
             self._learn_from_chat(user_input)
             self.context.clear()
-            return "Aku belum paham 🤔 Aku simpan ini untuk dipelajari."
 
-        # 6️⃣ respon normal
+            if ADMIN_MODE:
+                return "Aku belum paham 🤔 Aku simpan ini untuk dicek admin."
+            return "Aku belum paham 🤔"
+
         return self._generate_response(intent)
 
-    # ===============================
-    # 🔽 BAGIAN INTERNAL
     # ===============================
 
     def _update_profile(self, entities: dict):
@@ -57,13 +51,11 @@ class SimpleAI:
             save_profile(self.profile)
 
     def _learn_from_chat(self, text: str):
-        # simpan unknown
         learned = load_learned()
         learned.setdefault("unknown", [])
         learned["unknown"].append(text)
         save_learned(learned)
 
-        # 🔮 AUTO TAG
         intent, score = suggest_intent(text, self.intent_model.dataset)
         if intent:
             add_suggestion(text, intent, score)
