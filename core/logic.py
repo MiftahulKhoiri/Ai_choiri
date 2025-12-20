@@ -4,6 +4,8 @@ from utils.entity_extractor import extract_entities
 from data.profile import load_profile, save_profile
 from data.chatlog import log_chat
 from data.learned import load_learned, save_learned
+from ml.auto_tag import suggest_intent
+from data.learned import add_suggestion
 
 
 RESPONSES = {
@@ -55,10 +57,15 @@ class SimpleAI:
             save_profile(self.profile)
 
     def _learn_from_chat(self, text: str):
-        learned = load_learned()
-        learned.setdefault("unknown", [])
-        learned["unknown"].append(text)
-        save_learned(learned)
+    learned = load_learned()
+    learned.setdefault("unknown", [])
+    learned["unknown"].append(text)
+    save_learned(learned)
+
+    # 🔮 AUTO TAG
+    intent, score = suggest_intent(text, self.intent_model.dataset)
+    if intent:
+        add_suggestion(text, intent, score)
 
     def _generate_response(self, intent: str) -> str:
         name = self.profile.get("nama")
