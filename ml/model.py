@@ -18,15 +18,19 @@ class IntentModel:
         return vectors
 
     def predict(self, text: str) -> str:
-        input_vec = vectorize(tokenize(text))
+    input_vec = vectorize(tokenize(text))
 
-        best_score = 0.0
-        best_intent = "unknown"
+    best_score = 0.0
+    best_intent = "unknown"
 
-        for item in self.pattern_vectors:
-            score = cosine_similarity(input_vec, item["vector"])
-            if score > best_score:
-                best_score = score
-                best_intent = item["intent"]
+    for item in self.pattern_vectors:
+        score = cosine_similarity(input_vec, item["vector"])
+        if score > best_score:
+            best_score = score
+            best_intent = item["intent"]
 
-        return best_intent
+    # 🔥 THRESHOLD CERDAS
+    if best_score < 0.3:
+        return "unknown"
+
+    return best_intent
